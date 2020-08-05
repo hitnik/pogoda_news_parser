@@ -1,6 +1,6 @@
 import requests
+from requests.models import PreparedRequest
 import datetime
-import urllib
 
 DOMAIN = 'http://www.pogoda.by/news/index.php'
 
@@ -14,15 +14,18 @@ def get_url(url):
 
 def create_pogoda_news_urls_list(date_from, years_deep):
     months_deep = years_deep*12;
-
+    urls_list = []
     for month in range(months_deep+1):
-        date = date_from - datetime.timedelta(month=month)
+        date = date_from - datetime.timedelta(months=month)
         month = date.month
         year = date.year
-
+        params = {'month': month, 'year':year}
+        req = PreparedRequest()
+        req.prepare_url(DOMAIN, params)
+        print(req.url)
 
 
 
 if __name__ == '__main__':
-    print(get_url(DOMAIN))
+    create_pogoda_news_urls_list(datetime.datetime.now(), 1)
 

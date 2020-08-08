@@ -84,10 +84,9 @@ def month_find_list(tex_list):
     return l
 
 def find_day_in_text(month_dict_list):
+    result = []
     digits = re.compile('\d+')
     digits_defis = re.compile('\d+-\d+') 
-    print(len(month_dict_list))
-    print('----') 
     for index, item in enumerate(month_dict_list):
         string = item['text'][0:item['start']]
         match_digit = re.search(digits, string)
@@ -97,12 +96,13 @@ def find_day_in_text(month_dict_list):
            days_str = re.split('-',match_digits_defis.group(0))
            for day in days_str:
                 days.append(int(day))
-           item['days'] = days
+           result.append({'text': item['text'], 'month': item['month'], 'days':days})
         elif match_digit:
            days = [int(match_digit.group(0))]
            item['days'] = days
+           result.append({'text': item['text'], 'month': item['month'], 'days':days})
 
-        return month_dict_list
+    return result
 
 
 if __name__ == '__main__':
@@ -110,5 +110,5 @@ if __name__ == '__main__':
     html = get_url(urls[0])
     text_list = find_text_in_html(html)
     month_list = month_find_list(text_list)
-    print(find_day_in_text(month_list))
+    list = find_day_in_text(month_list)
 

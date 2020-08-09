@@ -4,7 +4,7 @@ import datetime
 import dateutil.relativedelta
 from bs4 import BeautifulSoup
 import re
-
+import csv
 
 DOMAIN = 'http://www.pogoda.by/news/index.php'
 
@@ -88,27 +88,38 @@ def find_day_in_text(month_dict_list):
     digits = re.compile('\d+')
     digits_defis = re.compile('\d+-\d+') 
     for index, item in enumerate(month_dict_list):
-        string = item['text'][0:item['start']]
-        match_digit = re.search(digits, string)
-        match_digits_defis = re.search(digits_defis, string)
+        text = item['text'][0:item['start']]
+        match_digit = re.search(digits, text)
+        match_digits_defis = re.search(digits_defis, text)
         if match_digits_defis:
            days = []
            days_str = re.split('-',match_digits_defis.group(0))
            for day in days_str:
                 days.append(int(day))
-           result.append({'text': item['text'], 'month': item['month'], 'days':days})
+           text = item['text'].lstrip(' ')
+           result.append({'text': text, 'month': item['month'], 'days':days})
         elif match_digit:
            days = [int(match_digit.group(0))]
-           item['days'] = days
-           result.append({'text': item['text'], 'month': item['month'], 'days':days})
-
+           text = item['text'].lstrip(' ')
+           result.append({'text': text, 'month': item['month'], 'days':days})
     return result
 
 
-if __name__ == '__main__':
-    urls = create_pogoda_news_urls_list(datetime.datetime.now(), 1)
-    html = get_url(urls[0])
-    text_list = find_text_in_html(html)
-    month_list = month_find_list(text_list)
-    list = find_day_in_text(month_list)
+def list_to_scv(list, path):
+   
+    with open(path, 'w',newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["test", "month", "days"])
+        for item in list:
+            writer.writerow([item['text'], item['month'], item['days']])
 
+if __name__ == '__main__':
+    urls = create_pogoda_news_urls_list(datetime.datetime.now(), 10)
+    weather_list = []
+    for url in urls:
+        html = get_url(url)
+        text_list = find_text_in_html(html)
+        month_list = month_find_list(text_list)
+        days = find_day_in_text(month_list)
+        weather_list.extend(days)
+    list_to_scv(weather_list, 'weather_forecast.csv')

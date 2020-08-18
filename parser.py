@@ -5,23 +5,31 @@ import dateutil.relativedelta
 from bs4 import BeautifulSoup
 import re
 import csv
+import nltk
+from nltk.corpus import stopwords
+import rulemma
 
 DOMAIN = 'http://www.pogoda.by/news/index.php'
 
-MONTHS= {
-    1 : "Января",
-    2 : "Февраля",
-    3 : "Марта",
-    4 : "Апреля",
-    5 : "Мая",
-    6 : "Июня",
-    7 : "Июля",
-    8 : "Августа",
-    9 : "Сентября",
-    10 : "Октября",
-    11 : "Ноября",
-    12 :"Декабря"
+MONTHS_GEN = {
+    1: "Января",
+    2: "Февраля",
+    3: "Марта",
+    4: "Апреля",
+    5: "Мая",
+    6: "Июня",
+    7: "Июля",
+    8: "Августа",
+    9: "Сентября",
+    10: "Октября",
+    11: "Ноября",
+    12: "Декабря"
 }
+
+MONTH_LIST = ['январь', "февраль", "март", "апрель",
+            "май", "июнь", "июль", "август",
+            "сентябрь", "октябрь", "ноябрь", "декабрь"
+            ]
 
 def get_url(url):
 
@@ -64,7 +72,7 @@ def find_text_in_html(html):
     return p_no_tags_list
 
 def find_month_in_text(text):
-    for k,v in MONTHS.items():
+    for k,v in MONTHS_GEN.items():
         if type(text) == str:
             clear_text = text.replace("\r\n","")
             r = re.search(v, clear_text)
@@ -107,19 +115,66 @@ def find_day_in_text(month_dict_list):
 
 def list_to_scv(list, path):
    
-    with open(path, 'w',newline='') as file:
+    with open(path, 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["test", "month", "days"])
         for item in list:
             writer.writerow([item['text'], item['month'], item['days']])
 
+def clear_words(words):
+    lemmatizer = rulemma.Lemmatizer()
+    lemmatizer.load()
+    stop_words = stopwords.words('russian')
+    stop_words.extend(['что', 'это', 'так', 'вот', 'быть', 'как', 'в', 'к', 'на','см',
+                       '...', '..', ',', '.', 'м/с', 'В', '(', ')', ':', '-', '–', ';', '!'])
+    cleared = []
+    for word in words:
+        if word.lower() not in stop_words:
+            if not re.search('°', word)\
+                    and not re.match(r'^[-\+]\d+', word):
+                lemma = lemmatizer.get_lemma(word.lower())
+                if type(lemma) == tuple:
+                    cleared.append(lemma[0])
+                elif type(lemma) == str:
+                    cleared.append(lemma)
+
+    return  cleared
+
+def is_month_and_date_in_tokens(tokens):
+    is_month = False
+    is_digit = False
+    for token in tokens:
+        if token in MONTH_LIST:
+            is_month = True
+        if token.isnumeric():
+            is_digit = True
+
+    return is_month and is_digit
+
+
 if __name__ == '__main__':
-    urls = create_pogoda_news_urls_list(datetime.datetime.now(), 10)
-    weather_list = []
-    for url in urls:
-        html = get_url(url)
-        text_list = find_text_in_html(html)
-        month_list = month_find_list(text_list)
-        days = find_day_in_text(month_list)
-        weather_list.extend(days)
-    list_to_scv(weather_list, 'weather_forecast.csv')
+    cleared_tuple = set()
+    # urls = create_pogoda_news_urls_list(datetime.datetime.now(), 10)
+    # weather_list = []
+    # for url in urls:
+    #     html = get_url(url)
+    #     text_list = find_text_in_html(html)
+    #     month_list = month_find_list(text_list)
+    #     days = find_day_in_text(month_list)
+    #     weather_list.extend(days)
+    # list_to_scv(weather_list, 'weather_forecast.csv')
+    i = 0
+    with open('weather_tokens.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        with open('weather_cleared.csv', 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["tokens", "month", "days"])
+            for row in reader:
+                i += 1
+                words = row['tokens']
+                month = row['month']
+                days = row['days']
+                print(i)
+                words = clear_words(words)
+                if is_month_and_date_in_tokens(words):
+                    writer.writerow([words, month, days])

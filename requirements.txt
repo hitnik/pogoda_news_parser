@@ -61,7 +61,6 @@ qtconsole==4.7.5
 QtPy==1.9.0
 regex==2020.7.14
 requests==2.24.0
-rulemma==0.0.44
 scikit-learn==0.23.2
 scipy==1.5.2
 Send2Trash==1.5.0

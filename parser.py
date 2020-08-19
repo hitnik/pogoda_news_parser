@@ -163,6 +163,24 @@ if __name__ == '__main__':
     #     days = find_day_in_text(month_list)
     #     weather_list.extend(days)
     # list_to_scv(weather_list, 'weather_forecast.csv')
+    # i = 0
+    # with open('weather_forecast.csv', newline='') as csvfile:
+    #     reader = csv.DictReader(csvfile)
+    #     with open('weather_tokens.csv', 'w', newline='') as file:
+    #         writer = csv.writer(file)
+    #         writer.writerow(["tokens", "month", "days"])
+    #         for row in reader:
+    #             i += 1
+    #             text = row['text']
+    #             month = row['month']
+    #             days = row['days']
+    #             print(i)
+    #             sentences = nltk.sent_tokenize(text)
+    #             for sentence in sentences:
+    #                 words = nltk.word_tokenize(sentence)
+    #                 # words = clear_words(words)
+    #                 # if is_month_and_date_in_tokens(words):
+    #                 writer.writerow([words, month, days])
     i = 0
     with open('weather_tokens.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)

@@ -12,18 +12,18 @@ import rulemma
 DOMAIN = 'http://www.pogoda.by/news/index.php'
 
 MONTHS_GEN = {
-    1: "Января",
-    2: "Февраля",
-    3: "Марта",
-    4: "Апреля",
-    5: "Мая",
-    6: "Июня",
-    7: "Июля",
-    8: "Августа",
-    9: "Сентября",
-    10: "Октября",
-    11: "Ноября",
-    12: "Декабря"
+    1: "января",
+    2: "февраля",
+    3: "марта",
+    4: "апреля",
+    5: "мая",
+    6: "июня",
+    7: "июля",
+    8: "августа",
+    9: "сентября",
+    10: "октября",
+    11: "ноября",
+    12: "декабря"
 }
 
 MONTH_LIST = ['январь', "февраль", "март", "апрель",
@@ -122,8 +122,8 @@ def list_to_scv(list, path):
             writer.writerow([item['text'], item['month'], item['days']])
 
 def clear_words(words):
-    lemmatizer = rulemma.Lemmatizer()
-    lemmatizer.load()
+    # lemmatizer = rulemma.Lemmatizer()
+    # lemmatizer.load()
     stop_words = stopwords.words('russian')
     stop_words.extend(['что', 'это', 'так', 'вот', 'быть', 'как', 'в', 'к', 'на','см',
                        '...', '..', ',', '.', 'м/с', 'В', '(', ')', ':', '-', '–', ';', '!'])
@@ -132,13 +132,15 @@ def clear_words(words):
         if word.lower() not in stop_words:
             if not re.search('°', word)\
                     and not re.match(r'^[-\+]\d+', word):
-                lemma = lemmatizer.get_lemma(word.lower())
-                if type(lemma) == tuple:
-                    cleared.append(lemma[0])
-                elif type(lemma) == str:
-                    cleared.append(lemma)
+                # lemma = lemmatizer.get_lemma(word.lower())
+                # if type(lemma) == tuple:
+                #     cleared.append(lemma[0])
+                # elif type(lemma) == str:
+                    cleared.append(word.lower())
 
-    return  cleared
+    return cleared
+
+
 
 def is_month_and_date_in_tokens(tokens):
     is_month = False
@@ -152,6 +154,14 @@ def is_month_and_date_in_tokens(tokens):
     return is_month and is_digit
 
 
+def count_words_in_list(word, list):
+    count = 0
+    for i in list:
+        if word == i:
+            count += 1
+    return count
+
+
 if __name__ == '__main__':
     cleared_tuple = set()
     # urls = create_pogoda_news_urls_list(datetime.datetime.now(), 10)
@@ -163,9 +173,6 @@ if __name__ == '__main__':
     #     days = find_day_in_text(month_list)
     #     weather_list.extend(days)
     # list_to_scv(weather_list, 'weather_forecast.csv')
-    # i = 0
-    # with open('weather_forecast.csv', newline='') as csvfile:
-    #     reader = csv.DictReader(csvfile)
     #     with open('weather_tokens.csv', 'w', newline='') as file:
     #         writer = csv.writer(file)
     #         writer.writerow(["tokens", "month", "days"])
@@ -181,18 +188,92 @@ if __name__ == '__main__':
     #                 # words = clear_words(words)
     #                 # if is_month_and_date_in_tokens(words):
     #                 writer.writerow([words, month, days])
-    i = 0
-    with open('weather_tokens.csv', newline='') as csvfile:
+
+    # bag = set()
+    # months = list(MONTHS_GEN.values())
+    # digits_defis = re.compile('\d+-\d+')
+    # with open('weather_forecast.csv', newline='') as csvfile:
+    #     reader = csv.DictReader(csvfile)
+    #     for row in reader:
+    #         text = row['text']
+    #         sentences = nltk.sent_tokenize(text)
+    #         for sentence in sentences:
+    #             words = nltk.word_tokenize(sentence)
+    #             cleared_words = clear_words(words)
+    #             print(cleared_words)
+    #             for index, word in enumerate(cleared_words):
+    #                 if word in months:
+    #                     bag.add(word)
+    #                     print(word)
+    #                     if index > 0:
+    #                         prev_word = cleared_words[index-1]
+    #                         if re.match(digits_defis, prev_word):
+    #                             bag.add(prev_word)
+    #
+    # for index, i in enumerate(range(1, 32)):
+    #     bag.add(str(i))
+    #     if i < 31:
+    #         bag.add(str(i)+'-'+str(i+1))
+    #
+    # for item in bag:
+    #     print(item)
+    # with open('words_bag.csv', 'w', newline='') as file:
+    #     writer = csv.writer(file)
+    #     writer.writerow(["bag"])
+    #     for word in bag:
+    #         writer.writerow([word])
+
+    bag = set()
+    d_list = []
+    with open('words_bag.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
-        with open('weather_cleared.csv', 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["tokens", "month", "days"])
-            for row in reader:
-                i += 1
-                words = row['tokens']
-                month = row['month']
-                days = row['days']
-                print(i)
-                words = clear_words(words)
-                if is_month_and_date_in_tokens(words):
-                    writer.writerow([words, month, days])
+        for row in reader:
+            item = row['bag']
+            bag.add(str(item))
+
+    with open('weather_forecast.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            text = row['text']
+            month = row['month']
+            days = row['days']
+            days = days.replace('[', '')
+            days = days.replace(']', '')
+            days = days.replace(' ', '')
+            day_list = days.split(',')
+            words = nltk.word_tokenize(text)
+            cleared_words = clear_words(words)
+            d = {}
+            d['text'] = text
+            for item in bag:
+                d[item] = count_words_in_list(item, words)
+            d['month'] = month
+            d['day_start'] = day_list[0]
+            if len(day_list) > 1:
+                d['day_end'] = day_list[1]
+            else:
+                d['day_end'] = day_list[0]
+            d_list.append(d)
+    with open('weather_data.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(k for k, v in d_list[0].items())
+        for d in d_list:
+            writer.writerow(v for k, v in d.items())
+
+
+
+    # i = 0
+    # with open('weather_tokens.csv', newline='') as csvfile:
+    #     reader = csv.DictReader(csvfile)
+    #     with open('weather_cleared.csv', 'w', newline='') as file:
+    #         writer = csv.writer(file)
+    #         writer.writerow(["tokens", "month", "days"])
+    #         for row in reader:
+    #             i += 1
+    #             words = row['tokens']
+    #             month = row['month']
+    #             days = row['days']
+    #             print(i)
+    #             words = clear_words(words)
+    #             if is_month_and_date_in_tokens(words):
+    #                 writer.writerow([words, month, days])

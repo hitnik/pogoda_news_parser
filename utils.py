@@ -61,7 +61,6 @@ def sentence_to_bagofwords(sentence):
     for item in bag:
         d[item] = count_words_in_list(item, cleared_words)
     month_dict = filter_months_in_bag(d)
-
     return list(month_dict.values())
 
 

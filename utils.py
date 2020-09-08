@@ -2,6 +2,7 @@ import re
 import csv
 import nltk
 from nltk.corpus import stopwords
+from nltk.util import ngrams
 
 
 MONTHS_GEN = {
@@ -49,18 +50,25 @@ def filter_months_in_bag(d):
     return result
 
 def sentence_to_bagofwords(sentence):
-    bag = set()
+    bag = []
     d = {}
-    with open('words_bag.csv', newline='') as csvfile:
+    with open('words_bag_2.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             item = row['bag']
-            bag.add(str(item))
+            bag.append(str(item))
     words = nltk.word_tokenize(sentence)
     cleared_words = clear_words(words)
+    bigrams = ngrams(cleared_words, 2)
+    uniom_grams = set()
+    for item in bigrams:
+        sum = ''
+        for i in item:
+            sum+=i
+            uniom_grams.add(sum)
     for item in bag:
-        d[item] = count_words_in_list(item, cleared_words)
-    month_dict = filter_months_in_bag(d)
-    return list(month_dict.values())
+        d[item] = count_words_in_list(item, uniom_grams)
+    return d
+
 
 

@@ -52,7 +52,7 @@ def filter_months_in_bag(d):
 def sentence_to_bagofwords(sentence):
     bag = []
     d = {}
-    with open('words_bag_2.csv', newline='') as csvfile:
+    with open('words_bag_2.csv', encoding='utf-8', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             item = row['bag']

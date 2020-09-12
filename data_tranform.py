@@ -158,12 +158,11 @@ with open('weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
             for name in row_names:
                 row_dict[name] = row[name]
                 if int(row[name]) > 0:
-                    try:
-                        check_list.append(int(name))
-                    except ValueError:
-                        if re.match(r'^\d+-\d+', name):
-                            check_list.append(int(re.split('-', name)[0]))
-            if len(check_list) > 0 and not int(row['day_start']) in check_list:
+                    check_list.append(name)
+
+            if len(check_list) > 0 and \
+                    not (str(row['day_start']) in check_list or
+                     str(row['day_start']+'-'+row['day_end']) in check_list):
                 print('--------')
                 print('day-start  :  '+  row['day_start'])
                 print('--------')

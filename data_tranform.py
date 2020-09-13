@@ -143,12 +143,30 @@ with open('weather_data_days.csv', encoding='utf-8', newline='') as file:
 
     print(row_names)
 
-dict_list = []
+count = 0
 
 with open('weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
     reader_2 = csv.DictReader(csvfile)
-    cont = True
     for row in reader_2:
+        day_start = row['day_start']
+        day_end = row['day_end']
+        check_list = []
+        for name in row_names:
+            if int(row[name]) > 0:
+                check_list.append(name)
+        if len(check_list) > 0 and \
+                not (str(row['day_start']) in check_list or
+                 str(row['day_start']+'-'+row['day_end']) in check_list):
+            count += 1
+
+print(count)
+
+dict_list = []
+
+with open('weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
+    reader_3 = csv.DictReader(csvfile)
+    cont = True
+    for row in reader_3:
         day_start = row['day_start']
         day_end = row['day_end']
         row_dict = {}
@@ -163,23 +181,44 @@ with open('weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
             if len(check_list) > 0 and \
                     not (str(row['day_start']) in check_list or
                      str(row['day_start']+'-'+row['day_end']) in check_list):
+
                 print('--------')
-                print('day-start  :  '+  row['day_start'])
+                print('Осталось изменить %d записей' % count)
+                print('day-start  :  ' + row['day_start'])
                 print('--------')
                 print('check_list')
                 print(check_list)
                 print('--------')
                 pp.pprint(row['text'])
-                print('day_start : ')
-                day_start = input()
-                print('day_end : ')
-                day_end = input()
+                print('------------')
+                if len(check_list) == 1:
+                    try:
+                        int(check_list[0])
+                        print('выбрано %s' % check_list[0])
+                        print('Сохранить?  (0 - No, Eny other key Yes)')
+                        try:
+                            is_save = (bool(int(input())))
+                        except ValueError:
+                            is_save = True
+                    except ValueError:
+                        is_save = False
+                if not is_save:
+                    print('day_start : ')
+                    day_start = input()
+                    print('day_end : ')
+                    day_end = input()
+                else:
+                    print('-----------------')
+                    print('Сохранено %s' % check_list[0])
+                    day_start = int(check_list[0])
+                    day_end = int(check_list[0])
                 print('--------')
                 print('Exit? (0 - exit, Eny other key to continue)')
                 try:
                     cont = (bool(int(input())))
                 except ValueError:
                     cont = True
+                count -= 1
         else:
             for name in row_names:
                 row_dict[name] = row[name]

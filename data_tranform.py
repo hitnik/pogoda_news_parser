@@ -191,6 +191,7 @@ with open('weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
                 print('--------')
                 pp.pprint(row['text'])
                 print('------------')
+                is_save = False
                 if len(check_list) == 1:
                     try:
                         int(check_list[0])

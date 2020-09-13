@@ -68,6 +68,16 @@ def sentence_to_bagofwords(sentence):
             uniom_grams.add(sum)
     for item in bag:
         d[item] = count_words_in_list(item, uniom_grams)
+
+    month_dict = {}
+    for month in MONTHS_GEN.values():
+        month_dict[month] = 0
+    for key, value in d.items():
+        for k, v in month_dict.items():
+            pattern = re.compile(k+'$')
+            if re.search(pattern, key):
+                month_dict[k] += int(v)
+    print(month_dict)
     return d
 
 

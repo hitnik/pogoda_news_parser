@@ -51,8 +51,8 @@ def filter_months_in_bag(d):
 
 class BagOfWords():
     def __init__(self, sentence):
-        self.sentence = sentence
-        self.bag_dict = self._sentence_to_bagofwords()
+        self._sentence = sentence
+        self._bag_dict = self._sentence_to_bagofwords()
 
     def _sentence_to_bagofwords(self):
         bag = []
@@ -62,7 +62,7 @@ class BagOfWords():
             for row in reader:
                 item = row['bag']
                 bag.append(str(item))
-        words = nltk.word_tokenize(self.sentence)
+        words = nltk.word_tokenize(self._sentence)
         cleared_words = clear_words(words)
         bigrams = ngrams(cleared_words, 2)
         uniom_grams = set()
@@ -75,8 +75,9 @@ class BagOfWords():
             d[item] = count_words_in_list(item, uniom_grams)
         return d
 
-    def get_months_bag(self):
-        d = self.bag_dict
+    @property
+    def months_bag(self):
+        d = self._bag_dict
         month_dict = {}
         for month in MONTHS_GEN.values():
             month_dict[month] = 0
@@ -85,10 +86,11 @@ class BagOfWords():
                 pattern = re.compile(k + '$')
                 if re.search(pattern, key):
                     month_dict[k] += int(value)
-        return  month_dict
+        return list(month_dict.values())
 
-    def get_days_bag(self):
-        d = self.bag_dict
+    @property
+    def days_bag(self):
+        d = self._bag_dict
         days_dict = {}
         bag = set()
         for i in range(1,32):
@@ -103,5 +105,5 @@ class BagOfWords():
                     pattern = k+mon
                     if pattern == name:
                         days_dict[k] += int(value)
-        return  days_dict
+        return list(days_dict.values())
 

@@ -49,36 +49,59 @@ def filter_months_in_bag(d):
                 result[month] = v
     return result
 
-def sentence_to_bagofwords(sentence):
-    bag = []
-    d = {}
-    with open('words_bag_2.csv', encoding='utf-8', newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            item = row['bag']
-            bag.append(str(item))
-    words = nltk.word_tokenize(sentence)
-    cleared_words = clear_words(words)
-    bigrams = ngrams(cleared_words, 2)
-    uniom_grams = set()
-    for item in bigrams:
-        sum = ''
-        for i in item:
-            sum+=i
-            uniom_grams.add(sum)
-    for item in bag:
-        d[item] = count_words_in_list(item, uniom_grams)
+class BagOfWords():
+    def __init__(self, sentence):
+        self.sentence = sentence
+        self.bag_dict = self._sentence_to_bagofwords()
 
-    month_dict = {}
-    for month in MONTHS_GEN.values():
-        month_dict[month] = 0
-    for key, value in d.items():
-        for k, v in month_dict.items():
-            pattern = re.compile(k+'$')
-            if re.search(pattern, key):
-                month_dict[k] += int(v)
-    print(month_dict)
-    return d
+    def _sentence_to_bagofwords(self):
+        bag = []
+        d = {}
+        with open('words_bag.csv', encoding='utf-8', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                item = row['bag']
+                bag.append(str(item))
+        words = nltk.word_tokenize(self.sentence)
+        cleared_words = clear_words(words)
+        bigrams = ngrams(cleared_words, 2)
+        uniom_grams = set()
+        for item in bigrams:
+            sum = ''
+            for i in item:
+                sum+=i
+                uniom_grams.add(sum)
+        for item in bag:
+            d[item] = count_words_in_list(item, uniom_grams)
+        return d
 
+    def get_months_bag(self):
+        d = self.bag_dict
+        month_dict = {}
+        for month in MONTHS_GEN.values():
+            month_dict[month] = 0
+        for key, value in d.items():
+            for k, v in month_dict.items():
+                pattern = re.compile(k + '$')
+                if re.search(pattern, key):
+                    month_dict[k] += int(value)
+        return  month_dict
 
+    def get_days_bag(self):
+        d = self.bag_dict
+        days_dict = {}
+        bag = set()
+        for i in range(1,32):
+            bag.add(str(i))
+            if i < 31:
+                bag.add(str(i)+'-'+str(i+1))
+        for item in bag:
+            days_dict[item] = 0
+        for name, value in d.items():
+            for k,v in days_dict.items():
+                for mon in MONTHS_GEN.values():
+                    pattern = k+mon
+                    if pattern == name:
+                        days_dict[k] += int(value)
+        return  days_dict
 

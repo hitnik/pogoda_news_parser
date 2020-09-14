@@ -1,4 +1,7 @@
-from utils import  sentence_to_bagofwords
+from utils import  BagOfWords
 
-y = sentence_to_bagofwords('Желтый уровень опасности. Днем 4 сентября (пятница) местами по востоку республики ожидаются грозы.')
-print(y)
+bag = BagOfWords('Желтый уровень опасности. Днем 4 сентября (пятница) местами по востоку республики ожидаются грозы.')
+print(bag.get_months_bag())
+print()
+print()
+print(bag.get_days_bag())

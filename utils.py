@@ -3,7 +3,7 @@ import csv
 import nltk
 from nltk.corpus import stopwords
 from nltk.util import ngrams
-
+import joblib
 
 MONTHS_GEN = {
     1: "января",
@@ -50,6 +50,7 @@ def filter_months_in_bag(d):
     return result
 
 class BagOfWords():
+
     def __init__(self, sentence):
         self._sentence = sentence
         self._bag_dict = self._sentence_to_bagofwords()
@@ -107,3 +108,9 @@ class BagOfWords():
                         days_dict[k] += int(value)
         return list(days_dict.values())
 
+
+#Save the pipeline
+def save_pipeline(path, file, pipeline_to_persist) -> None:
+    save_file_name = file
+    save_path = path
+    joblib.dump(pipeline_to_persist, save_path+save_file_name)

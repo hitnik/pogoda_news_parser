@@ -134,7 +134,7 @@ import pprint
 
 pp = pprint.PrettyPrinter(width=100)
 
-with open('weather_data_days.csv', encoding='utf-8', newline='') as file:
+with open('data/weather_data_days.csv', encoding='utf-8', newline='') as file:
     reader = csv.reader(file)
     row_names = next(reader)
     row_names.remove('day_start')
@@ -145,7 +145,7 @@ with open('weather_data_days.csv', encoding='utf-8', newline='') as file:
 
 count = 0
 
-with open('weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
+with open('data/weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
     reader_2 = csv.DictReader(csvfile)
     for row in reader_2:
         day_start = row['day_start']
@@ -163,7 +163,7 @@ print(count)
 
 dict_list = []
 
-with open('weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
+with open('data/weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
     reader_3 = csv.DictReader(csvfile)
     cont = True
     for row in reader_3:
@@ -226,7 +226,7 @@ with open('weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
         row_dict['day_start'] = day_start
         row_dict['day_end'] = day_end
         dict_list.append(row_dict)
-with open('weather_data_days.csv', 'w', encoding='utf-8', newline='') as file:
+with open('data/weather_data_days.csv', 'w', encoding='utf-8', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(k for k, v in dict_list[0].items())
     for d in dict_list:

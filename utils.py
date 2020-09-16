@@ -4,6 +4,9 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.util import ngrams
 import joblib
+import pandas as pd
+from os import path
+
 
 MONTHS_GEN = {
     1: "января",
@@ -93,12 +96,13 @@ class BagOfWords():
     def days_bag(self):
         d = self._bag_dict
         days_dict = {}
-        bag = set()
-        for i in range(1,32):
-            bag.add(str(i))
-            if i < 31:
-                bag.add(str(i)+'-'+str(i+1))
-        for item in bag:
+        with open('./data/weather_data_days.csv', encoding='utf-8', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            row_names = next(reader)
+            row_names.remove('day_start')
+            row_names.remove('day_end')
+            row_names.remove('text')
+        for item in row_names:
             days_dict[item] = 0
         for name, value in d.items():
             for k,v in days_dict.items():
@@ -110,7 +114,19 @@ class BagOfWords():
 
 
 #Save the pipeline
-def save_pipeline(path, file, pipeline_to_persist) -> None:
-    save_file_name = file
-    save_path = path
-    joblib.dump(pipeline_to_persist, save_path+save_file_name)
+def save_pipeline(filepath, pipeline_to_persist) -> None:
+    joblib.dump(pipeline_to_persist, filepath)
+
+#read pipeline from file
+def load_pipeline(filepath):
+    return joblib.load(filepath)
+
+def read_data(filepath):
+    return pd.read_csv(filepath)
+
+def split_data(data, exlude_columns, predict_column):
+
+    X = data.drop(exlude_columns, axis=1)
+    y = data[predict_column].astype('int64')
+
+    return X, y

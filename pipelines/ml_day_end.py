@@ -7,9 +7,9 @@ EXCLUDE_COLUMNS = ['day_end', 'day_start','text']
 PREDICT_COLUMNS = 'day_end'
 
 weather_day_start_pipeline = Pipeline([('RFC',
-        RandomForestClassifier(n_estimators=51, random_state=17, n_jobs=-1,
-                                oob_score=True, max_depth=34, max_features= 2
-                               ))])
+                                        RandomForestClassifier(n_estimators=21, random_state=17, n_jobs=-1,
+                                                               oob_score=True, max_depth=46, min_samples_leaf=1,
+                                                               max_features=6))])
 
 # Train the model
 def run_training():

@@ -7,7 +7,7 @@ EXCLUDE_COLUMNS = ['day_end', 'day_start','text']
 PREDICT_COLUMNS = 'day_start'
 
 weather_day_start_pipeline = Pipeline([('RFC',
-        RandomForestClassifier(n_estimators=51, random_state=17, n_jobs=-1,
+        RandomForestClassifier(n_estimators=28, random_state=17, n_jobs=-1,
                                 oob_score=True, max_depth=34, max_features= 2
                                ))])
 

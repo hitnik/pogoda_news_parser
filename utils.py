@@ -58,6 +58,18 @@ class BagOfWords():
         self._sentence = sentence
         self._bag_dict = self._sentence_to_bagofwords()
 
+    def _primary_clearing(self):
+        pattern = re.compile('\d+((\s-\s)|(\s-)|(-\s))\d+')
+        if re.search(pattern, self._sentence):
+            match = re.search(pattern, self._sentence).group()
+            new = match.replace(' ', '')
+            self._sentence = self._sentence.replace(match, new)
+        pattern_and = re.compile('\d+\sи\s\d+')
+        if re.search(pattern_and, self._sentence):
+            match = re.search(pattern_and, self._sentence).group()
+            new = match.replace(' и ', '-')
+            self._sentence = self._sentence.replace(match, new)
+
     def _sentence_to_bagofwords(self):
         bag = []
         d = {}
@@ -66,6 +78,9 @@ class BagOfWords():
             for row in reader:
                 item = row['bag']
                 bag.append(str(item))
+
+        self._primary_clearing()
+
         words = nltk.word_tokenize(self._sentence)
         cleared_words = clear_words(words)
         bigrams = ngrams(cleared_words, 2)
